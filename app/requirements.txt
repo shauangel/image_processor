@@ -1,0 +1,6 @@
+flask
+opencv-python
+numpy
+requests
+flasgger
+boto3

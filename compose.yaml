@@ -1,0 +1,51 @@
+name: image_processor
+
+services:
+  imageprocessor-web:
+    container_name: imageprocessor-web
+    build:
+      context: web
+    ports:
+      - 56000:56000
+    depends_on:
+      - imageprocessor-backend
+    networks:
+      - mynet
+
+  imageprocessor-backend:
+    container_name: imageprocessor-backend
+    image: imageprocessor
+    build:
+      context: app
+      target: builder
+    stop_signal: SIGINT
+    environment:
+      - FLASK_SERVER_PORT=50000
+      - MONGO_URI=mongodb://imageprocessor-mongo:27017/imageprocessor_db
+      - AWS_ACCESS_KEY_ID=AKIAXAJL2R7RV7FHSIM4
+      - AWS_SECRET_ACCESS_KEY=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
+    volumes:
+      - ./app:/src
+    depends_on:
+      -  imageprocessor-mongo
+    networks:
+      - mynet
+
+  imageprocessor-mongo:
+    container_name: imageprocessor-mongo
+    image: mongo
+    ports:
+      - 56001:27017
+    volumes:
+      - imageprocessor-data:/data/db
+    networks:
+      - mynet
+
+
+networks:
+  mynet:
+    driver: bridge
+
+
+volumes:
+  imageprocessor-data:
